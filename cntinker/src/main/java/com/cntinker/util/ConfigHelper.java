@@ -19,7 +19,10 @@ public class ConfigHelper{
      * 配置文件的绝对路径
      */
     private String cfgPath;
-
+    
+    /**
+     * test 
+     */
     private String worklassPath;
 
     public String getCfgPath(){
