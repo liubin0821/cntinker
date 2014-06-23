@@ -21,7 +21,7 @@ public class ConfigHelper{
     private String cfgPath;
     
     /**
-     * test 
+     * test a.
      */
     private String worklassPath;
 
