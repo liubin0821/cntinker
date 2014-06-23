@@ -25,6 +25,9 @@ public class ConfigHelper{
      */
     private String worklassPath;
 
+    /**
+     * @return String
+     */
     public String getCfgPath(){
         return cfgPath;
     }
