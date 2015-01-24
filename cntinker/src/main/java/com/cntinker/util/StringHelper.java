@@ -1466,7 +1466,7 @@ public class StringHelper{
         SimpleDateFormat datef = new SimpleDateFormat("yyyy-MM-dd");
         Date s = datef.parse("2012-10-15");
         Date e = datef.parse("2012-12-15");
-        // datef.parse("2012-10-15");
+        // datef.parse("2012-10-15.");
         System.out.println("------------------------");
         System.out.println(getFirstDay(s.getTime()));
         System.out.println(getEndDay(e.getTime()));
