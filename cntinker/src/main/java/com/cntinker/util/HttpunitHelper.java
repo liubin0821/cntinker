@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +33,13 @@ import com.meterware.httpunit.WebResponse;
  */
 public class HttpunitHelper {
 
-	public Vector v1 = new Vector();// ±£´æCOOkieµÄÃû³Æ
+	public Vector v1 = new Vector();// ä¿å­˜COOkieçš„åç§°
 
-	public Vector v2 = new Vector();// ±£´æCOOkieµÄÖµ
+	public Vector v2 = new Vector();// ä¿å­˜COOkieçš„å€¼
 
-	String location = "";// ±£´æÉú³ÉµÄËæ»úÂë
+	String location = "";// ä¿å­˜ç”Ÿæˆçš„éšæœºç 
 
-	private WebConversation wc = null; // ´øCOOKIEµÄÄ£Äâ¿Í»§¶Ë
+	private WebConversation wc = null; // å¸¦COOKIEçš„æ¨¡æ‹Ÿå®¢æˆ·ç«¯
 
 	// WebConversation wc = null;
 
@@ -53,7 +54,7 @@ public class HttpunitHelper {
 	/**
 	 * @param ua
 	 * @param autoRedirect
-	 *            Ò»°ãÍøÕ¾ÉèÖÃÎªtrue
+	 *            ä¸€èˆ¬ç½‘ç«™è®¾ç½®ä¸ºtrue
 	 */
 	public WebConversation init(String ua, boolean autoRedirect) {
 		WebConversation wc = new WebConversation();
@@ -82,7 +83,21 @@ public class HttpunitHelper {
 	 */
 	public WebResponse getWebResponse(WebConversation wc, String url)
 			throws MalformedURLException, IOException, SAXException {
+		return getWebResponse(wc, url, null);
+	}
+
+	public WebResponse getWebResponse(WebConversation wc, String url,
+			Map<String, String> param) throws IOException, SAXException {
 		WebRequest req = new GetMethodWebRequest(url);
+		if (param != null && param.size() > 0) {
+			Iterator<String> it = param.keySet().iterator();
+			while (it.hasNext()) {
+				String k = it.next();
+				String v = param.get(k);
+				req.setParameter(k, v);
+			}
+		}
+
 		WebResponse resp = wc.getResponse(req);
 		return resp;
 	}
@@ -130,7 +145,7 @@ public class HttpunitHelper {
 	}
 
 	/**
-	 * µÃµ½ËùÓĞÏÂÔØÁ´
+	 * å¾—åˆ°æ‰€æœ‰ä¸‹è½½é“¾
 	 * 
 	 * @param page
 	 * @return String[]
@@ -216,7 +231,7 @@ public class HttpunitHelper {
 			// System.out.println("key: " + key + " | value"+value);
 		}
 
-		// µÇÂ½±äÎª¿ÉÅĞ¶ÏÓĞ/ÎŞBUTTONÌá½»FORM
+		// ç™»é™†å˜ä¸ºå¯åˆ¤æ–­æœ‰/æ— BUTTONæäº¤FORM
 		WebResponse rs = null;
 
 		if (subType == 0)
@@ -242,16 +257,16 @@ public class HttpunitHelper {
 	 */
 	private void saveCookie(WebResponse rs, WebConversation wc) {
 		/**
-		 * µÃµ½cookie,ÇÒ±£´æ
+		 * å¾—åˆ°cookie,ä¸”ä¿å­˜
 		 */
 		String[] str = rs.getNewCookieNames();
-		// System.out.println("»ØĞ´COOKIE³¤¶È£º " + str.length);
+		// System.out.println("å›å†™COOKIEé•¿åº¦ï¼š " + str.length);
 		for (int i = 0; i < str.length; i++) {
 			v1.add(str[i]);
 			v2.add(rs.getNewCookieValue(str[i]));
 		}
 		/**
-		 * È¡µÃLOCATION,ÇÒ±£´æ
+		 * å–å¾—LOCATION,ä¸”ä¿å­˜
 		 */
 		String[] str1 = rs.getHeaderFieldNames();
 		for (int i = 0; i < str1.length; i++) {
@@ -261,7 +276,7 @@ public class HttpunitHelper {
 		}
 		this.wc = wc;
 		/**
-		 * ÎªÄ£Äâä¯ÀÀÆ÷ÉèÖÃcookie
+		 * ä¸ºæ¨¡æ‹Ÿæµè§ˆå™¨è®¾ç½®cookie
 		 */
 		for (int i = 0; i < v1.size(); i++) {
 			// System.out.println("key: " + (String) v1.get(i) + " | values: "
@@ -290,8 +305,10 @@ public class HttpunitHelper {
 	 * @throws IOException
 	 * @throws SAXException
 	 */
-	public boolean login(String loginSuccessTitle, WebResponse rs)
-			throws MalformedURLException, IOException, SAXException {
+	public boolean login(String loginSuccessTitle, WebResponse rs,
+			WebConversation wc) throws MalformedURLException, IOException,
+			SAXException {
+		System.out.println(rs.getText());
 		if (rs.getTitle().indexOf(loginSuccessTitle) > -1)
 			return true;
 		return false;
@@ -309,9 +326,9 @@ public class HttpunitHelper {
 	public static void main(String[] args) throws MalformedURLException,
 			SAXException, IOException, ServletException {
 		HttpunitHelper webLogin = new HttpunitHelper();
-		WebConversation wc = webLogin.init("bin_liu", true);
+		WebConversation wc = webLogin.init("", true);
 
-		WebResponse r = wc.getResponse("http://211.94.187.165:8090/test.jsp");
+		WebResponse r = wc.getResponse("http://www.baidu.com");
 		System.out.println(r.getText());
 		// System.out.println(HttpHelper.postHttpRquest(login,"","UTF-8"));
 	}

@@ -13,7 +13,8 @@ public class CnCharCount{
     /**
      * 测试
      * 
-     * @param args String[] //abc
+     * @param args
+     *            String[]
      */
     public static void main(String[] args) throws Exception{
 

@@ -136,5 +136,20 @@ public class MailSend{
         return email;
     }
 
-    
+    // public static void main(String args[])throws Exception{
+    // String[] to = new String[]{"376068867@qq.com"}; //"284523574@qq.com"
+    //
+    // String link = "http://211.94.187.165:8090/taobao/ad_1.jsp?m=";
+    //
+    // MailSend ms = new MailSend();
+    // // ms.sendSampleMail("smtp.126.com","liubin0821","gamebb","管理员",
+    // // "liubin0821@126.com","binliu0821@gmail.com","测试标题","测试内容");
+    //
+    // String html
+    // ="<html><head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=gb2312\"></head><body>如果邮件无法正常显示，<a href="+link+StringHelper.toHexString("376068867@qq.com")+">请点击这里显示<br/><a href="+link+StringHelper.toHexString("376068867@qq.com")+"><img src=http://cartoon.dm3721.com/ad_1.jpg></img></a></body></html>";
+    // ms.sendHtmlMail("smtp.126.com","liubin0821","gamebb","时尚包包",
+    // "liubin0821@126.com",to,"2011最新时尚包包",html);
+    //
+    // System.out.println(" 邮件发送成功.. ");
+    // }
 }

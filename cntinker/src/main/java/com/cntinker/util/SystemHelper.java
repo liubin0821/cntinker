@@ -149,8 +149,10 @@ public class SystemHelper{
     }
 
     private static String replaceLineSeparator(String content){
-        if(getOsName().indexOf("Win") > -1)
+        if(getOsName().indexOf("Win") > -1){
             content = content.replaceAll("/",getLineSeparator());
+            //content = content.replaceAll("\\",getLineSeparator());
+        }
         return content;
     }
 
@@ -195,7 +197,7 @@ public class SystemHelper{
      * type:<br>
      * 1:total <br>
      * 2:available <br>
-     * 3:.
+     * 3:
      * 
      * @param type
      * @return Long
@@ -212,10 +214,7 @@ public class SystemHelper{
 
         return res;
     }
-    
-    
-    
-    
+
     public static void main(String[] args) throws Exception{
         OperatingSystemMXBean osmb = (OperatingSystemMXBean) ManagementFactory
                 .getOperatingSystemMXBean();

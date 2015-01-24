@@ -24,9 +24,6 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
-
 /**
  * @author: bin_liu
  * 
@@ -295,9 +292,7 @@ public class WebImageHelper {
 			}
 			g.dispose();
 
-			//ImageIO.write(image, "JPEG", out);
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-			encoder.encode(image);
+			ImageIO.write(image, "JPEG", out);
 			g = null;
 			random = null;
 			image = null;

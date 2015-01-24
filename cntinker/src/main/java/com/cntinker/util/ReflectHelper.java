@@ -32,8 +32,7 @@ public class ReflectHelper{
     public static Object setValue(Object obj,String paramer,Object value)
             throws IllegalAccessException,IllegalArgumentException,
             InvocationTargetException{
-
-        if(value == null)
+        if(value==null)
             return obj;
         String methodName = "set" + paramer.substring(0,1).toUpperCase()
                 + paramer.substring(1);
@@ -207,7 +206,6 @@ public class ReflectHelper{
             constructor.setAccessible(true);
         }
         return constructor;
-
     }
 
     public static String[] getAllvarName(Class clazz){
@@ -237,21 +235,14 @@ public class ReflectHelper{
     }
 
     public static void main(String[] args) throws Exception{
-
-        //
-        // dto.setUrlValue("http://www.baidu.com");
-        // System.out.println(getValue(dto, "urlValue"));
-        //
-        //
-        // List<Method> getList = getAllGetMethod(dto);
-        // for(Method e : getList){
+        // Gateway g = new Gateway();
+        // g.setId(157);
+        // g.setGatewayApiName("测试API");
+        // Field[] f = g.getClass().getDeclaredFields();
+        // for(Field e : f){
         // System.out.println(e.getName());
         // }
         //
-        // List<Method> setList = getAllSetMethod(dto);
-        // for(Method e : setList){
-        // System.out.println(e.getName());
-        // }
-
+        // System.out.println(makeToString(g));
     }
 }

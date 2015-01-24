@@ -19,15 +19,9 @@ public class ConfigHelper{
      * 配置文件的绝对路径
      */
     private String cfgPath;
-    
-    /**
-     * test a.
-     */
+
     private String worklassPath;
 
-    /**
-     * @return String
-     */
     public String getCfgPath(){
         return cfgPath;
     }
@@ -51,11 +45,22 @@ public class ConfigHelper{
         System.out.println("path:" + path);
         if(osName.indexOf("Win") > -1){
             path = path.substring(path.indexOf("/") + 1);
+
         }else{
             path = path.substring(path.indexOf("/"));
+            path = path.replaceAll("%20", " ");
         }
-        worklassPath = path.substring(0,path.indexOf("classes") + 8);
-        cfgPath = path.substring(0,path.indexOf("classes") + 8) + "conf/";
+
+        // worklassPath = path.substring(0,path.indexOf("classes") + 8);
+        // cfgPath = path.substring(0,path.indexOf("classes") + 8) + "conf/";
+        if(path.indexOf("classes") > -1){
+            worklassPath = path.substring(0,path.indexOf("classes") + 8);
+            cfgPath = path.substring(0,path.indexOf("classes") + 8) + "conf/";
+        }else{
+            worklassPath = path.substring(0,path.indexOf("WEB-INF") + 8)+"classes/";
+            cfgPath = path.substring(0,path.indexOf("WEB-INF")+8) + "classes/conf/";
+        }
+        System.out.println("cfgPath: " + cfgPath);
     }
 
     /**
@@ -81,8 +86,17 @@ public class ConfigHelper{
         ConfigHelper c = new ConfigHelper(StringHelper.getInstancle());
         System.out.println(c.getCfgPath());
         // 默认配置文件目录
-        System.out.println(c.getValueByName("baseConfig.cfg","encode"));
+        System.out.println(c.getValueByName("server.properties",
+                "platform.server.businessServer"));
         // 变更配置文件目录
-        System.out.println(c.getValueByName("realtioncode.cfg","2"));
+        System.out.println(c
+                .getValueByName("client.properties","client.server"));
+
+        String s = "file:/D:/source/hualu/smsplatform/smsplatform-web/target/smsplatform-web/WEB-INF/classes/com/cntinker/util/";
+        System.out
+                .println(s.substring(s.indexOf("/") + 1,s.indexOf("WEB-INF")));
+        System.out.println(c.getCfgPath().substring(0,
+                c.getCfgPath().indexOf("WEB-INF")));
+        System.out.println(c.getCfgPath());
     }
 }
