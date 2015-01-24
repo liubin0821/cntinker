@@ -195,7 +195,7 @@ public class SystemHelper{
      * type:<br>
      * 1:total <br>
      * 2:available <br>
-     * 3:
+     * 3:.
      * 
      * @param type
      * @return Long
