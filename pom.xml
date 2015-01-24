@@ -174,7 +174,22 @@
 			<artifactId>org.json</artifactId>
 			<version>chargebee-1.0</version>
 		</dependency>
-		
+			<!-- import local jar: mvn install:install-file -Dfile=D:\temp\lib\core-2.3.0.jar 
+			-DgroupId=com.google.zxing -DartifactId=core -Dversion=2.3.0 -Dpackaging=jar -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>core</artifactId>
+			<version>2.3.0</version>
+		</dependency>
+		<!-- import local jar: mvn install:install-file -Dfile=D:\temp\lib\core-2.3.0.jar 
+			-DgroupId=com.google.zxing -DartifactId=core -Dversion=2.3.0 -Dpackaging=jar -->
+		<!-- import local jar: mvn install:install-file -Dfile=D:\temp\lib\javase-2.3.0.jar 
+			-DgroupId=com.google.zxing -DartifactId=javase -Dversion=2.3.0 -Dpackaging=jar -->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+			<version>2.3.0</version>
+		</dependency>
 
 		<dependency>
 			<groupId>commons-logging</groupId>
