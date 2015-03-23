@@ -552,6 +552,10 @@ public class StringHelper {
 				&& line.length() <= length;
 	}
 
+	public static boolean isEmail(String line) {
+		return line.matches("\\w+[\\w.]*@[\\w.]+\\.\\w+$");
+	}
+
 	/**
 	 * 判断输入是否全是中文
 	 * 
@@ -1546,7 +1550,7 @@ public class StringHelper {
 	public static String formartDecimalToStr(Double d) {
 		return formartDecimalToStr(d, "0.00");
 	}
-	
+
 	public static String formartDecimalToStr(Float d) {
 		return formartDecimalToStr(d.doubleValue(), "0.00");
 	}
@@ -1630,5 +1634,8 @@ public class StringHelper {
 		Date td1 = dateff.parse(time);
 		Date td2 = new Date(System.currentTimeMillis());
 		System.out.println(getDiffMinute(td1, td2));
+
+		String mail = "fjw1ie_fjiwe@1126.com";
+		System.out.println(isEmail(mail));
 	}
 }
