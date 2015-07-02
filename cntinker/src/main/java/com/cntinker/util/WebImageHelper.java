@@ -258,6 +258,8 @@ public class WebImageHelper {
 		try {
 			if (StringHelper.isNull(sessionKey))
 				request.getSession().setAttribute("validateCode", drawStr);
+			else
+				request.getSession().setAttribute(sessionKey, drawStr);
 
 			BufferedImage image = new BufferedImage(width, height, 1);
 
@@ -775,7 +777,7 @@ public class WebImageHelper {
 	}
 
 	public static String createJPG(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+			HttpServletResponse response, String sessionKey) throws IOException {
 		// response.setContentType("image/jpeg");
 		// response.setHeader("Pragma", "No-cache");
 		// response.setHeader("Cache-Control", "no-cache");
@@ -810,8 +812,10 @@ public class WebImageHelper {
 
 			sb.append(str);
 		}
-
-		request.getSession().setAttribute("validateCode", sb.toString());
+		if (StringHelper.isNull(sessionKey))
+			request.getSession().setAttribute("validateCode", sb.toString());
+		else
+			request.getSession().setAttribute(sessionKey, sb.toString());
 		try {
 			ServletOutputStream os = response.getOutputStream();
 
