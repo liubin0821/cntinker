@@ -240,22 +240,24 @@ public class WebImageHelper {
 	}
 
 	public static String createJpg(HttpServletRequest request,
-			OutputStream out, int width, int height, String drawStr)
-			throws Exception {
-		return createJpg(request, out, width, height, drawStr, 16);
+			OutputStream out, int width, int height, String drawStr,
+			String sessionKey) throws Exception {
+		return createJpg(request, out, width, height, drawStr, 16, sessionKey);
 	}
 
 	public static String createJpg(HttpServletRequest request,
 			OutputStream out, int width, int height, String drawStr,
-			int fontsize) throws Exception {
-		return createJpg(request, out, width, height, 0, 0, drawStr, fontsize);
+			int fontsize, String sessionKey) throws Exception {
+		return createJpg(request, out, width, height, 0, 0, drawStr, fontsize,
+				sessionKey);
 	}
 
 	public static String createJpg(HttpServletRequest request,
 			OutputStream out, int width, int height, int x, int y,
-			String drawStr, int fontsize) throws Exception {
+			String drawStr, int fontsize, String sessionKey) throws Exception {
 		try {
-			request.getSession().setAttribute("validateCode", drawStr);
+			if (StringHelper.isNull(sessionKey))
+				request.getSession().setAttribute("validateCode", drawStr);
 
 			BufferedImage image = new BufferedImage(width, height, 1);
 
@@ -304,11 +306,12 @@ public class WebImageHelper {
 
 	private static String createWebJpg(HttpServletRequest request,
 			HttpServletResponse response, int width, int height, int x, int y,
-			int nlen, int types, String drawStr, int fontsize) throws Exception {
-//		response.setContentType("image/jpeg");
-//		response.setHeader("Pragma", "No-cache");
-//		response.setHeader("Cache-Control", "no-cache");
-//		response.setDateHeader("Expires", 0L);
+			int nlen, int types, String drawStr, int fontsize, String sessionKey)
+			throws Exception {
+		// response.setContentType("image/jpeg");
+		// response.setHeader("Pragma", "No-cache");
+		// response.setHeader("Cache-Control", "no-cache");
+		// response.setDateHeader("Expires", 0L);
 		try {
 			if (drawStr == null) {
 				switch (types) {
@@ -323,7 +326,7 @@ public class WebImageHelper {
 				}
 			}
 			createJpg(request, response.getOutputStream(), width, height, x, y,
-					drawStr, fontsize);
+					drawStr, fontsize, sessionKey);
 			return drawStr;
 		} catch (Exception e) {
 			throw e;
@@ -331,176 +334,190 @@ public class WebImageHelper {
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height, int nlen)
-			throws Exception {
+			HttpServletResponse response, int width, int height, int nlen,
+			String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, nlen, 0,
-				null, 16);
+				null, 16, sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
 			HttpServletResponse response, int width, int height, int nlen,
-			int nfontsize) throws Exception {
+			int nfontsize, String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, nlen, 0,
-				null, nfontsize);
-	}
-
-	public static String createAscii2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height, int nlen)
-			throws Exception {
-		return createWebJpg(request, response, width, height, 0, 0, nlen, 1,
-				null, 16);
+				null, nfontsize, sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
 			HttpServletResponse response, int width, int height, int nlen,
-			int nfontsize) throws Exception {
+			String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, nlen, 1,
-				null, nfontsize);
+				null, 16, sessionKey);
 	}
 
-	public static String createGBK2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height, int nlen)
-			throws Exception {
-		return createWebJpg(request, response, width, height, 0, 0, nlen, 2,
-				null, 16);
+	public static String createAscii2Jpg(HttpServletRequest request,
+			HttpServletResponse response, int width, int height, int nlen,
+			int nfontsize, String sessionKey) throws Exception {
+		return createWebJpg(request, response, width, height, 0, 0, nlen, 1,
+				null, nfontsize, sessionKey);
 	}
 
 	public static String createGBK2Jpg(HttpServletRequest request,
 			HttpServletResponse response, int width, int height, int nlen,
-			int nfontsize) throws Exception {
+			String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, nlen, 2,
-				null, nfontsize);
+				null, 16, sessionKey);
+	}
+
+	public static String createGBK2Jpg(HttpServletRequest request,
+			HttpServletResponse response, int width, int height, int nlen,
+			int nfontsize, String sessionKey) throws Exception {
+		return createWebJpg(request, response, width, height, 0, 0, nlen, 2,
+				null, nfontsize, sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height, int nlen) throws Exception {
-		return createJpg(request, out, width, height, getNumber(nlen));
-	}
-
-	public static String createNumber2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height, int nlen, int nfontsize)
+			OutputStream out, int width, int height, int nlen, String sessionKey)
 			throws Exception {
 		return createJpg(request, out, width, height, getNumber(nlen),
-				nfontsize);
-	}
-
-	public static String createAscii2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height, int nlen) throws Exception {
-		return createJpg(request, out, width, height, getAscii(nlen));
-	}
-
-	public static String createAscii2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height, int nlen, int nfontsize)
-			throws Exception {
-		return createJpg(request, out, width, height, getAscii(nlen), nfontsize);
-	}
-
-	public static String createGBK2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height, int nlen) throws Exception {
-		return createJpg(request, out, width, height, getGBK(nlen));
-	}
-
-	public static String createGBK2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height, int nlen, int nfontsize)
-			throws Exception {
-		return createJpg(request, out, width, height, getGBK(nlen), nfontsize);
+				sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height)
+			OutputStream out, int width, int height, int nlen, int nfontsize,
+			String sessionKey) throws Exception {
+		return createJpg(request, out, width, height, getNumber(nlen),
+				nfontsize, sessionKey);
+	}
+
+	public static String createAscii2Jpg(HttpServletRequest request,
+			OutputStream out, int width, int height, int nlen, String sessionKey)
 			throws Exception {
+		return createJpg(request, out, width, height, getAscii(nlen),
+				sessionKey);
+	}
+
+	public static String createAscii2Jpg(HttpServletRequest request,
+			OutputStream out, int width, int height, int nlen, int nfontsize,
+			String sessionKey) throws Exception {
+		return createJpg(request, out, width, height, getAscii(nlen),
+				nfontsize, sessionKey);
+	}
+
+	public static String createGBK2Jpg(HttpServletRequest request,
+			OutputStream out, int width, int height, int nlen, String sessionKey)
+			throws Exception {
+		return createJpg(request, out, width, height, getGBK(nlen), sessionKey);
+	}
+
+	public static String createGBK2Jpg(HttpServletRequest request,
+			OutputStream out, int width, int height, int nlen, int nfontsize,
+			String sessionKey) throws Exception {
+		return createJpg(request, out, width, height, getGBK(nlen), nfontsize,
+				sessionKey);
+	}
+
+	public static String createNumber2Jpg(HttpServletRequest request,
+			HttpServletResponse response, int width, int height,
+			String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, 6, 0, null,
-				16);
+				16, sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int nlen) throws Exception {
+			HttpServletResponse response, int nlen, String sessionKey)
+			throws Exception {
 		return createWebJpg(request, response, nlen * 16, 24, 0, 0, nlen, 1,
-				null, 16);
+				null, 16, sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height)
-			throws Exception {
+			HttpServletResponse response, int width, int height,
+			String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, 6, 1, null,
-				16);
+				16, sessionKey);
 	}
 
 	public static String createGBK2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int nlen) throws Exception {
-		return createWebJpg(request, response, nlen * 2 * 16, 24, 0, 0, nlen,
-				2, null, 16);
-	}
-
-	public static String createGBK2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height)
+			HttpServletResponse response, int nlen, String sessionKey)
 			throws Exception {
+		return createWebJpg(request, response, nlen * 2 * 16, 24, 0, 0, nlen,
+				2, null, 16, sessionKey);
+	}
+
+	public static String createGBK2Jpg(HttpServletRequest request,
+			HttpServletResponse response, int width, int height,
+			String sessionKey) throws Exception {
 		return createWebJpg(request, response, width, height, 0, 0, 6, 2, null,
-				16);
+				16, sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height) throws Exception {
-		return createJpg(request, out, width, height, getNumber(6));
+			OutputStream out, int width, int height, String sessionKey)
+			throws Exception {
+		return createJpg(request, out, width, height, getNumber(6), sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
-			OutputStream out, int nlen) throws Exception {
-		return createJpg(request, out, nlen * 16, 24, getAscii(nlen));
+			OutputStream out, int nlen, String sessionKey) throws Exception {
+		return createJpg(request, out, nlen * 16, 24, getAscii(nlen),
+				sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height) throws Exception {
-		return createJpg(request, out, width, height, getAscii(6));
+			OutputStream out, int width, int height, String sessionKey)
+			throws Exception {
+		return createJpg(request, out, width, height, getAscii(6), sessionKey);
 	}
 
 	public static String createGBK2Jpg(HttpServletRequest request,
-			OutputStream out, int width, int height) throws Exception {
-		return createJpg(request, out, width, height, getGBK(6));
+			OutputStream out, int width, int height, String sessionKey)
+			throws Exception {
+		return createJpg(request, out, width, height, getGBK(6), sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response, String sessionKey) throws Exception {
 		return createWebJpg(request, response, 100, 24, 0, 0, 6, 0,
-				getNumber(6), 16);
+				getNumber(6), 16, sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			HttpServletResponse response, int nlen) throws Exception {
+			HttpServletResponse response, int nlen, String sessionKey)
+			throws Exception {
 		return createWebJpg(request, response, nlen * 16, 24, 0, 0, 6, 0,
-				getNumber(nlen), 16);
+				getNumber(nlen), 16, sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response, String sessionKey) throws Exception {
 		return createWebJpg(request, response, 100, 24, 0, 0, 6, 1,
-				getAscii(6), 16);
+				getAscii(6), 16, sessionKey);
 	}
 
 	public static String createGBK2Jpg(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response, String sessionKey) throws Exception {
 		return createWebJpg(request, response, 200, 24, 0, 0, 6, 2, getGBK(6),
-				16);
+				16, sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			OutputStream out) throws Exception {
-		return createJpg(request, out, 100, 24, getNumber(6));
+			OutputStream out, String sessionKey) throws Exception {
+		return createJpg(request, out, 100, 24, getNumber(6), sessionKey);
 	}
 
 	public static String createNumber2Jpg(HttpServletRequest request,
-			OutputStream out, int len) throws Exception {
-		return createJpg(request, out, len * 16, 24, getNumber(len));
+			OutputStream out, int len, String sessionKey) throws Exception {
+		return createJpg(request, out, len * 16, 24, getNumber(len), sessionKey);
 	}
 
 	public static String createAscii2Jpg(HttpServletRequest request,
-			OutputStream out) throws Exception {
-		return createJpg(request, out, 100, 24, getAscii(6));
+			OutputStream out, String sessionKey) throws Exception {
+		return createJpg(request, out, 100, 24, getAscii(6), sessionKey);
 	}
 
 	public static String createGBK2Jpg(HttpServletRequest request,
-			OutputStream out) throws Exception {
-		return createJpg(request, out, 200, 24, getGBK(6));
+			OutputStream out, String sessionKey) throws Exception {
+		return createJpg(request, out, 200, 24, getGBK(6), sessionKey);
 	}
 
 	public static boolean createJpg(HttpServletRequest request,
@@ -540,70 +557,78 @@ public class WebImageHelper {
 	}
 
 	public static String createJpg(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
+			HttpServletResponse response, String sessionKey) throws Exception {
 		return createWebJpg(request, response, 100, 24, 0, 0, 6, 0,
-				getAscii(6), 16);
+				getAscii(6), 16, sessionKey);
 	}
 
 	public static String createJpg(HttpServletRequest request,
-			HttpServletResponse response, int nlen) throws Exception {
+			HttpServletResponse response, int nlen, String sessionKey)
+			throws Exception {
 		return createWebJpg(request, response, nlen * 16, 24, 0, 0, nlen, 0,
-				getAscii(nlen), 16);
+				getAscii(nlen), 16, sessionKey);
 	}
 
 	public static String createJpg(HttpServletRequest request,
-			HttpServletResponse response, String drawStr) throws Exception {
+			HttpServletResponse response, String drawStr, String sessionKey)
+			throws Exception {
 		int n1 = drawStr.getBytes().length;
 		int n2 = drawStr.length();
-		createWebJpg(request, response, n1 * 16, 24, 0, 0, n2, 0, drawStr, 16);
-		return drawStr;
-	}
-
-	public static String createJpg(HttpServletRequest request,
-			HttpServletResponse response, int width, int height, String drawStr)
-			throws Exception {
-		int n2 = drawStr.length();
-		createWebJpg(request, response, width, height, 0, 0, n2, 0, drawStr, 16);
+		createWebJpg(request, response, n1 * 16, 24, 0, 0, n2, 0, drawStr, 16,
+				sessionKey);
 		return drawStr;
 	}
 
 	public static String createJpg(HttpServletRequest request,
 			HttpServletResponse response, int width, int height,
-			String drawStr, int nfontsize) throws Exception {
+			String drawStr, String sessionKey) throws Exception {
 		int n2 = drawStr.length();
 		createWebJpg(request, response, width, height, 0, 0, n2, 0, drawStr,
-				nfontsize);
+				16, sessionKey);
+		return drawStr;
+	}
+
+	public static String createJpg(HttpServletRequest request,
+			HttpServletResponse response, int width, int height,
+			String drawStr, int nfontsize, String sessionKey) throws Exception {
+		int n2 = drawStr.length();
+		createWebJpg(request, response, width, height, 0, 0, n2, 0, drawStr,
+				nfontsize, sessionKey);
 		return drawStr;
 	}
 
 	public static String createJpg(HttpServletRequest request,
 			HttpServletResponse response, int width, int height, int x, int y,
-			int fontsize) throws Exception {
+			int fontsize, String sessionKey) throws Exception {
 		String _s = getAscii(6);
-		createWebJpg(request, response, width, height, x, y, 6, 0, _s, fontsize);
+		createWebJpg(request, response, width, height, x, y, 6, 0, _s,
+				fontsize, sessionKey);
 		return _s;
 	}
 
 	public static String createJpg(HttpServletRequest request,
-			OutputStream out, String drawStr) throws Exception {
+			OutputStream out, String drawStr, String sessionKey)
+			throws Exception {
 		int n1 = drawStr.getBytes().length;
-		createJpg(request, out, n1 * 16, 24, drawStr);
+		createJpg(request, out, n1 * 16, 24, drawStr, sessionKey);
 		return drawStr;
 	}
 
-	public static String createJpg(HttpServletRequest request, OutputStream out)
-			throws Exception {
-		return createJpg(request, out, 100, 24, getAscii(6));
+	public static String createJpg(HttpServletRequest request,
+			OutputStream out, String sessionKey) throws Exception {
+		return createJpg(request, out, 100, 24, getAscii(6), sessionKey);
 	}
 
 	public static String createJpg(HttpServletRequest request,
-			OutputStream out, int nlen) throws Exception {
-		return createJpg(request, out, nlen * 16, 24, getAscii(nlen));
+			OutputStream out, int nlen, String sessionKey) throws Exception {
+		return createJpg(request, out, nlen * 16, 24, getAscii(nlen),
+				sessionKey);
 	}
 
 	public static void createBlankJpg(HttpServletRequest request,
-			HttpServletResponse response) throws Exception {
-		createWebJpg(request, response, 100, 24, 0, 0, 6, 0, " ", 16);
+			HttpServletResponse response, String sessionKey) throws Exception {
+		createWebJpg(request, response, 100, 24, 0, 0, 6, 0, " ", 16,
+				sessionKey);
 	}
 
 	public static boolean scale(String srcImageFile, String result, int scale,
@@ -751,10 +776,10 @@ public class WebImageHelper {
 
 	public static String createJPG(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
-//		response.setContentType("image/jpeg");
-//		response.setHeader("Pragma", "No-cache");
-//		response.setHeader("Cache-Control", "no-cache");
-//		response.setDateHeader("Expires", 0L);
+		// response.setContentType("image/jpeg");
+		// response.setHeader("Pragma", "No-cache");
+		// response.setHeader("Cache-Control", "no-cache");
+		// response.setDateHeader("Expires", 0L);
 
 		BufferedImage img = new BufferedImage(50, 25, 1);
 
