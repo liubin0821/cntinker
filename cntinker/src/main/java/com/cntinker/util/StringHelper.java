@@ -1446,6 +1446,7 @@ public class StringHelper {
 		String unicode = toUnicode(content);
 		unicode = unicode.replaceAll("\\\\u0020", "");
 		unicode = unicode.replaceAll("\\\\u3000", "");
+		unicode = unicode.replaceAll("\\\\u00a0", "");
 		return fromUnicode(unicode);
 	}
 
