@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -1605,6 +1606,69 @@ public class StringHelper {
 			result.put(entry.getKey(), entry.getValue());
 		}
 		return result;
+	}
+
+	private static String truncateUrlPage(String strURL) {
+		String strAllParam = null;
+		String[] arrSplit = null;
+
+		strURL = strURL.trim().toLowerCase();
+
+		arrSplit = strURL.split("[?]");
+		if (strURL.length() > 1) {
+			if (arrSplit.length > 1) {
+				if (arrSplit[1] != null) {
+					strAllParam = arrSplit[1];
+				}
+			}
+		}
+
+		return strAllParam;
+	}
+
+	/**
+	 * 获取一个URL后的所有参数及值，k,v格式
+	 * 
+	 * @param URL
+	 * @return Map<String,String>
+	 */
+	public static Map<String, String> getRequestParameters(String url) {
+		Map<String, String> mapRequest = new HashMap<String, String>();
+
+		String[] arrSplit = null;
+
+		String strUrlParam = truncateUrlPage(url);
+		if (strUrlParam == null) {
+			return mapRequest;
+		}
+		arrSplit = strUrlParam.split("[&]");
+		for (String strSplit : arrSplit) {
+			String[] arrSplitEqual = null;
+			arrSplitEqual = strSplit.split("[=]");
+			if (arrSplitEqual.length > 1) {
+				mapRequest.put(arrSplitEqual[0], arrSplitEqual[1]);
+			} else {
+				if (arrSplitEqual[0] != "") {
+					// 只有参数没有值，不加入
+					mapRequest.put(arrSplitEqual[0], "");
+				}
+			}
+		}
+		return mapRequest;
+	}
+
+	/**
+	 * 获取一个URL后的指定参数的值
+	 * 
+	 * @param url
+	 * @param key
+	 * @return String
+	 */
+	public static String getRequestValue(String url, String key) {
+		Map<String, String> m = getRequestParameters(url);
+		if (m == null || !m.containsKey(key))
+			return "";
+		return m.get(key).toString();
 	}
 
 	public static void main(String[] args) throws Exception {
