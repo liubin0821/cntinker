@@ -634,16 +634,6 @@ public class StringHelper {
 	}
 
 	/**
-	 * 检查身份证是否合为15位或18位
-	 * 
-	 * @param value
-	 * @return boolean
-	 */
-	public static boolean isIDCard(String value) {
-		return value.matches("\\d{15}|\\d{18}");
-	}
-
-	/**
 	 * 检查输入的字符串是否为手机号
 	 * 
 	 * @param line
@@ -1682,6 +1672,22 @@ public class StringHelper {
 		if (m == null || !m.containsKey(key))
 			return "";
 		return m.get(key).toString();
+	}
+
+	/**
+	 * 判定是否为有效的身份证
+	 * 
+	 * @param idcard
+	 * @return boolean
+	 */
+	public static boolean isIdcard(String idcard) {
+		Pattern p = null; // 正则表达??
+		Matcher m = null; // 操作的字符串
+		p = Pattern.compile("(\\d{14}[0-9a-zA-Z])|(\\d{17}[0-9a-zA-Z])");// 匹配移动手机号码
+		m = p.matcher(idcard);
+		if (m.matches())
+			return true;
+		return false;
 	}
 
 	public static void main(String[] args) throws Exception {
