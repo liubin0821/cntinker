@@ -18,6 +18,8 @@ import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -133,6 +135,65 @@ public class FileHelper {
 		File f = new File(file);
 
 		return f.length();
+	}
+
+	/**
+	 * 切割文件，不过重复行
+	 * 
+	 * @param sourceFile
+	 * @param line
+	 * @throws IOException
+	 */
+	public static void splitFileByLineFilter(String sourceFile, int line)
+			throws IOException {
+		splitFileByLine(sourceFile, line, false);
+	}
+
+	/**
+	 * 切割文件，过滤重复行
+	 * 
+	 * @param sourceFile
+	 * @param line
+	 * @throws IOException
+	 */
+	public static void splitFileByLineNoFilter(String sourceFile, int line)
+			throws IOException {
+		splitFileByLine(sourceFile, line, true);
+	}
+
+	/**
+	 * 按行数切割文件，指定多少行分一个文件
+	 * 
+	 * @param sourceFile
+	 * @param line
+	 * @param isFilter
+	 *            是否过重复行
+	 * @throws IOException
+	 */
+	public static void splitFileByLine(String sourceFile, int line,
+			boolean isFilter) throws IOException {
+		String[] temp = null;
+		if (isFilter)
+			temp = getLine(sourceFile, true);
+		else
+			temp = getLine(sourceFile, false);
+		int flag = 0;
+
+		Collection<String> l = new ArrayList<String>();
+		int fileCount = 0;
+		for (String e : temp) {
+			l.add(e);
+			if (flag % line == 0) {
+				FileHelper.recordFetchToFile(sourceFile + "_" + fileCount
+						+ ".tmp", l.toArray(new String[0]));
+				fileCount++;
+				l.clear();
+			}
+			flag++;
+		}
+		FileHelper.recordFetchToFile(sourceFile + "_" + fileCount + ".tmp",
+				l.toArray(new String[0]));
+		l.clear();
 	}
 
 	/**
@@ -380,11 +441,32 @@ public class FileHelper {
 	 */
 	public static String[] getLine(String file) throws FileNotFoundException,
 			IOException {
+		return getLine(file, false);
+	}
+
+	/**
+	 * 得到一个文本中的所有行
+	 * 
+	 * @param file
+	 * @return String[]
+	 * @throws IOException
+	 */
+	public static String[] getLineFilter(String file) throws IOException {
+		return getLine(file, true);
+	}
+
+	public static String[] getLine(String file, boolean isFilter)
+			throws IOException {
+
 		int page = 0;
 		String str;
 		BufferedReader bfr = new BufferedReader(new FileReader(file));
 
-		List result = new Vector();
+		Collection<String> result = null;
+		if (isFilter)
+			result = new HashSet<String>();
+		else
+			result = new Vector<String>();
 		while ((str = bfr.readLine()) != null) {
 			result.add(str);
 			page++;
@@ -394,6 +476,19 @@ public class FileHelper {
 		return (String[]) result.toArray(new String[0]);
 	}
 
+	public static List<String> getLineToList(String file) throws IOException {
+		String str;
+		BufferedReader bfr = new BufferedReader(new FileReader(file));
+		int page = 0;
+		List<String> result = new Vector<String>();
+		while ((str = bfr.readLine()) != null) {
+			result.add(str);
+			page++;
+		}
+		bfr.close();
+		return result;
+	}
+
 	public static String getContent(String file) throws FileNotFoundException,
 			IOException {
 
@@ -401,7 +496,7 @@ public class FileHelper {
 		String str;
 		StringBuffer res = new StringBuffer();
 		while ((str = bfr.readLine()) != null) {
-			res.append(str);
+			res.append(str).append("\n");
 		}
 
 		bfr.close();
@@ -636,6 +731,15 @@ public class FileHelper {
 			if (!f.exists()) {
 				f.mkdir();
 			}
+		}
+	}
+
+	public static void clearDir(String dir) throws IOException {
+		File[] f = getFilelist(dir);
+		for (File e : f) {
+			if (e.isDirectory())
+				clearDir(e.getAbsolutePath());
+			e.delete();
 		}
 	}
 
