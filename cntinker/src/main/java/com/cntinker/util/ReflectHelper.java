@@ -136,6 +136,47 @@ public class ReflectHelper {
 		return res;
 	}
 
+	public static <T> T getV(Object obj, String... paramer)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		for (int i = 0; i < paramer.length; i++) {
+			if (i <= paramer.length) {
+				Object o = getValue(obj, paramer[i]);
+				if ((paramer.length <= i + 1) && isBase(o))
+					return (T) getValue(obj, paramer[i]);
+				else
+					return getV(o, paramer[i + 1]);
+			}
+		}
+		return null;
+	}
+
+	private static boolean isBase(Object obj) {
+		if (obj instanceof java.lang.String) {
+			return true;
+		} else if (obj instanceof java.lang.Long) {
+			return true;
+		} else if (obj instanceof java.lang.Short) {
+			return true;
+		} else if (obj instanceof java.lang.Integer) {
+			return true;
+		} else if (obj instanceof java.lang.Byte) {
+			return true;
+		} else if (obj instanceof java.lang.Boolean) {
+			return true;
+		} else if (obj instanceof java.lang.Double) {
+			return true;
+		} else if (obj instanceof java.lang.Float) {
+			return true;
+		} else if (obj instanceof java.util.Date) {
+			return true;
+		} else if (obj instanceof java.sql.Timestamp) {
+			return true;
+		}
+
+		return false;
+	}
+
 	public static Object getValue(Object obj, String paramer)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
