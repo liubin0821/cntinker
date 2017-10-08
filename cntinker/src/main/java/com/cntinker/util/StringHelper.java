@@ -46,7 +46,6 @@ public class StringHelper {
 		phoneMatcher = query.toString();
 	}
 
-	
 	/**
 	 * 按指定长度切割字符串，方法调用传入co为null即可
 	 * 
@@ -55,23 +54,22 @@ public class StringHelper {
 	 * @param co
 	 * @return List<String>
 	 */
-	public static List<String> split(String str,int pos,List<String> co){
-		if(str.length()<=0){
+	public static List<String> split(String str, int pos, List<String> co) {
+		if (str.length() <= 0) {
 			return co;
 		}
-		if(str.length()<=pos){
+		if (str.length() <= pos) {
 			co.add(str);
 			return co;
 		}
-		if(co==null || co.size()<=0){
+		if (co == null || co.size() <= 0) {
 			co = new ArrayList<String>();
 		}
-		String temp = str.substring(0,pos);
+		String temp = str.substring(0, pos);
 		co.add(temp);
-		return split(str.substring(pos),pos,co);
+		return split(str.substring(pos), pos, co);
 	}
-	
-	
+
 	public static StringHelper getInstancle() {
 		return new StringHelper();
 	}
@@ -1714,6 +1712,26 @@ public class StringHelper {
 		if (m.matches())
 			return true;
 		return false;
+	}
+
+	/**
+	 * 时间段合法性检测,规则：新的时间段不能和原来的时间段有交集
+	 * 
+	 * @param oldStartTime
+	 * @param oldEndTime
+	 * @param newStartTime
+	 * @param newEndTime
+	 * @return boolean
+	 */
+	public static boolean checkTimeArea(Long oldStartTime, Long oldEndTime,
+			Long newStartTime, Long newEndTime) {
+		if (newStartTime >= oldStartTime && newStartTime <= oldEndTime) {
+			return false;
+		}
+		if (newEndTime >= oldStartTime && newEndTime <= oldEndTime) {
+			return false;
+		}
+		return true;
 	}
 
 	public static void main(String[] args) throws Exception {
