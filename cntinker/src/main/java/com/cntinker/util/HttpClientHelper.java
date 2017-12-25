@@ -17,6 +17,7 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -74,6 +75,7 @@ public class HttpClientHelper {
 		result = postMethod.getResponseBodyAsString();
 
 		postMethod.releaseConnection();
+		((SimpleHttpConnectionManager)client.getHttpConnectionManager()).shutdown();
 
 		return result;
 	}
@@ -126,6 +128,7 @@ public class HttpClientHelper {
 					+ StringHelper.getStackInfo(e));
 		} finally {
 			postMethod.releaseConnection();
+			((SimpleHttpConnectionManager)client.getHttpConnectionManager()).shutdown();
 		}
 		return result;
 	}
@@ -162,6 +165,7 @@ public class HttpClientHelper {
 			exLog.error("url:" + url + StringHelper.getStackInfo(e));
 		} finally {
 			getMethod.releaseConnection();
+			((SimpleHttpConnectionManager)client.getHttpConnectionManager()).shutdown();
 		}
 		return result;
 	}
