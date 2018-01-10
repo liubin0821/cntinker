@@ -17,16 +17,19 @@ import java.util.List;
 import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  * @author : Huyvanpull
  */
 public class PoiExcelHelper {
-
 	private static String sourceFile = "D:/work/phone/源文件/商城订单_20140711.xls";
 
 	private static String outFile = "D:/测试用.xls";
@@ -52,7 +55,8 @@ public class PoiExcelHelper {
 		List<ArrayList<String>> dataLst = new ArrayList<ArrayList<String>>();
 
 		/** 检查文件名是否为空或者是否是Excel格式的文件 */
-		if (fileName == null || !fileName.matches("^.+\\.(?i)((xls)|(xlsx))$")) {
+		if (fileName == null
+				|| !fileName.matches("^.+\\.(?i)((xls)|(xlsx)|(tmp))$")) {
 			return dataLst;
 		}
 
@@ -77,6 +81,117 @@ public class PoiExcelHelper {
 
 		/** 返回最后读取的结果 */
 		return dataLst;
+	}
+
+	public void splistFile(String fileName, int lineSize) {
+		/** 检查文件名是否为空或者是否是Excel格式的文件 */
+		if (fileName == null
+				|| !fileName.matches("^.+\\.(?i)((xls)|(xlsx)|(tmp))$")) {
+			return;
+		}
+
+		boolean isExcel2003 = true;
+		/** 对文件的合法性进行验证 */
+		if (fileName.matches("^.+\\.(?i)((xlsx)|(tmp))$")) {
+			isExcel2003 = false;
+		}
+
+		/** 检查文件是否存在 */
+		File file = new File(fileName);
+		if (file == null || !file.exists()) {
+			return;
+		}
+		try {
+			FileInputStream inputStream = new FileInputStream(file);
+			/** 调用本类提供的根据流读取的方法 */
+			Workbook wb = isExcel2003 ? new HSSFWorkbook(inputStream)
+					: new XSSFWorkbook(inputStream);
+			/** 得到第一个shell */
+			Sheet sheet = wb.getSheetAt(0);
+			this.totalRows = sheet.getPhysicalNumberOfRows();
+			if (this.totalRows >= 1 && sheet.getRow(0) != null) {
+				this.totalCells = sheet.getRow(0).getPhysicalNumberOfCells();
+			}
+
+			genExcelFile(file, sheet, 0, lineSize, lineSize, 0);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	private void genExcelFile(File f, Sheet sheet, int start, int end,
+			int lineSize, int count) throws FileNotFoundException, IOException {
+		String filepath = f.getAbsolutePath() + "_" + count + "_tmp.xlsx";
+		File tempFile = new File(filepath);
+
+		XSSFWorkbook wb = new XSSFWorkbook();
+		XSSFSheet hssfsheet = wb.createSheet("test");
+
+		int flag = 0;
+		for (int i = start; i < end; i++) {
+
+			Row row = sheet.getRow(i);
+			XSSFRow hssfrow = hssfsheet.createRow(flag);
+			// 创建第一个单元格 并处理乱码
+			copyRow(row, hssfrow, flag);
+			flag++;
+		}
+		FileOutputStream fileout = new FileOutputStream(tempFile);
+		wb.write(fileout);
+		fileout.close();
+
+		count++;
+		if (end < this.totalRows) {
+			genExcelFile(f, sheet, end, end + lineSize, lineSize, count);
+		}
+	}
+
+	/**
+	 * 复制行
+	 * 
+	 * @param sourceRow
+	 * @param targetRow
+	 * @param rowNum
+	 */
+	private void copyRow(Row sourceRow, XSSFRow targetRow, int rowNum) {
+		if (sourceRow == null)
+			return;
+		for (int i = 0; i < this.totalCells; i++) {
+			XSSFCell destCell = targetRow.createCell(i);
+			Cell srcCell = sourceRow.getCell(i);
+
+			// 处理单元格内容
+			switch (srcCell.getCellType()) {
+			case XSSFCell.CELL_TYPE_STRING:
+				destCell.setCellValue(srcCell.getStringCellValue());
+				break;
+			// 这里判断是否是日期
+			case XSSFCell.CELL_TYPE_NUMERIC:
+				// 判断是否是日期格式
+				// 测试发现如果这里不新建样式,日期显示的是数字
+				if (DateUtil.isCellDateFormatted(srcCell)) {
+					destCell.setCellValue(srcCell.getDateCellValue());
+				} else {
+					destCell.setCellValue(String.format("%.0f",
+							srcCell.getNumericCellValue()));
+				}
+				break;
+			case XSSFCell.CELL_TYPE_FORMULA:
+				destCell.setCellFormula(srcCell.getCellFormula());
+				break;
+			case XSSFCell.CELL_TYPE_BOOLEAN:
+				destCell.setCellValue(srcCell.getBooleanCellValue());
+				break;
+			case XSSFCell.CELL_TYPE_BLANK:
+				destCell.setCellType(XSSFCell.CELL_TYPE_BLANK);
+				break;
+			case XSSFCell.CELL_TYPE_ERROR:
+				break;
+			default:
+				break;
+			}
+
+		}
 	}
 
 	/**
