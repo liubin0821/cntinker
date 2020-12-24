@@ -1,5 +1,5 @@
 /**
- *2011-2-10 ÏÂÎç06:13:52
+ *2011-2-10 ä¸‹åˆ06:13:52
  */
 package com.cntinker.util;
 
@@ -35,12 +35,12 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
 public class ImgHelper{
 
     /**
-     * °ÑÍ¼Æ¬Ó¡Ë¢µ½Í¼Æ¬ÉÏ
+     * æŠŠå›¾ç‰‡å°åˆ·åˆ°å›¾ç‰‡ä¸Š
      * 
      * @param pressImg
-     *            -- Ë®Ó¡ÎÄ¼ş
+     *            -- æ°´å°æ–‡ä»¶
      * @param targetImg
-     *            -- Ä¿±êÎÄ¼ş
+     *            -- ç›®æ ‡æ–‡ä»¶
      * @param x
      * @param y
      */
@@ -56,7 +56,7 @@ public class ImgHelper{
             Graphics g = image.createGraphics();
             g.drawImage(src,0,0,wideth,height,null);
 
-            // Ë®Ó¡ÎÄ¼ş
+            // æ°´å°æ–‡ä»¶
             File _filebiao = new File(pressImg);
             Image src_biao = ImageIO.read(_filebiao);
             int wideth_biao = src_biao.getWidth(null);
@@ -75,22 +75,22 @@ public class ImgHelper{
     }
 
     /**
-     * ´òÓ¡ÎÄ×ÖË®Ó¡Í¼Æ¬
+     * æ‰“å°æ–‡å­—æ°´å°å›¾ç‰‡
      * 
      * @param pressText
-     *            --ÎÄ×Ö
+     *            --æ–‡å­—
      * @param targetImg
-     *            -- Ä¿±êÍ¼Æ¬
+     *            -- ç›®æ ‡å›¾ç‰‡
      * @param fontName
-     *            -- ×ÖÌåÃû
+     *            -- å­—ä½“å
      * @param fontStyle
-     *            -- ×ÖÌåÑùÊ½
+     *            -- å­—ä½“æ ·å¼
      * @param color
-     *            -- ×ÖÌåÑÕÉ«
+     *            -- å­—ä½“é¢œè‰²
      * @param fontSize
-     *            -- ×ÖÌå´óĞ¡
+     *            -- å­—ä½“å¤§å°
      * @param x
-     *            -- Æ«ÒÆÁ¿
+     *            -- åç§»é‡
      * @param y
      */
 
@@ -124,7 +124,7 @@ public class ImgHelper{
     }
 
     /**
-     * °´°Ù·Ö±È¸Ä±äÍ¼Æ¬´óĞ¡
+     * æŒ‰ç™¾åˆ†æ¯”æ”¹å˜å›¾ç‰‡å¤§å°
      * 
      * @param oldpath
      * @param newpath
@@ -133,7 +133,7 @@ public class ImgHelper{
      */
     public static void scaleImage(String oldpath,String newpath,int proportion)
             throws IOException{
-        // »ñÈ¡ÀÏµÄÍ¼Æ¬
+        // è·å–è€çš„å›¾ç‰‡
         File oldimg = new File(oldpath);
 
         BufferedImage src = ImageIO.read(oldimg);
@@ -146,11 +146,11 @@ public class ImgHelper{
         BufferedImage thumbnail = new BufferedImage(newW,newH,
                 BufferedImage.TYPE_INT_RGB);
         thumbnail.getGraphics().drawImage(Itemp,0,0,null);
-        // ËõÂÔºóµÄÍ¼Æ¬Â·¾¶
+        // ç¼©ç•¥åçš„å›¾ç‰‡è·¯å¾„
         File newimg = new File(newpath);
         FileOutputStream out = new FileOutputStream(newimg);
 
-        // »æÍ¼
+        // ç»˜å›¾
         JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
         JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(thumbnail);
         param.setQuality(1.0f,false);
@@ -161,21 +161,21 @@ public class ImgHelper{
     }
 
     /**
-     * ËõÂÔÍ¼Æ¬
+     * ç¼©ç•¥å›¾ç‰‡
      * 
      * @param oldpath
-     *            Ô­Í¼Æ¬
+     *            åŸå›¾ç‰‡
      * @param newpath
-     *            ĞÂÉú³ÉµÄÍ¼Æ¬´æ·ÅµØÖ·
+     *            æ–°ç”Ÿæˆçš„å›¾ç‰‡å­˜æ”¾åœ°å€
      * @param wdith
-     *            ËõÂÔºóµÄ¿í
+     *            ç¼©ç•¥åçš„å®½
      * @param height
-     *            ËõÂÔºóµÄ¸ß
+     *            ç¼©ç•¥åçš„é«˜
      * @throws IOException
      */
     public static void scaleImage(String oldpath,String newpath,int wdith,
             int height) throws IOException{
-        // »ñÈ¡ÀÏµÄÍ¼Æ¬
+        // è·å–è€çš„å›¾ç‰‡
         File oldimg = new File(oldpath);
 
         BufferedImage bi = ImageIO.read(oldimg);
@@ -185,11 +185,11 @@ public class ImgHelper{
                 BufferedImage.TYPE_INT_RGB);
         thumbnail.getGraphics().drawImage(Itemp,0,0,null);
 
-        // ËõÂÔºóµÄÍ¼Æ¬Â·¾¶
+        // ç¼©ç•¥åçš„å›¾ç‰‡è·¯å¾„
         File newimg = new File(newpath);
         FileOutputStream out = new FileOutputStream(newimg);
 
-        // »æÍ¼
+        // ç»˜å›¾
         JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
         JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(thumbnail);
         param.setQuality(1.0f,false);
@@ -201,20 +201,20 @@ public class ImgHelper{
     }
 
     /**
-     * ÇĞ¸îÍ¼Æ¬
+     * åˆ‡å‰²å›¾ç‰‡
      * 
      * @param x
-     *            ½Øµãºá×ø±ê (´Ó×ó¿ªÊ¼¼ÆÊı)
+     *            æˆªç‚¹æ¨ªåæ ‡ (ä»å·¦å¼€å§‹è®¡æ•°)
      * @param y
-     *            ½Øµã×İ×ø±ê (´ÓÉÏ¿ªÊ¼¼ÆÊı)
+     *            æˆªç‚¹çºµåæ ‡ (ä»ä¸Šå¼€å§‹è®¡æ•°)
      * @param width
-     *            ½ØÈ¡µÄ¿í¶È
+     *            æˆªå–çš„å®½åº¦
      * @param height
-     *            ½ØÈ¡µÄ³¤¶È
+     *            æˆªå–çš„é•¿åº¦
      * @param oldpath
-     *            Í¼Æ¬Î»ÖÃ
+     *            å›¾ç‰‡ä½ç½®
      * @param newpath
-     *            ĞÂÉú³ÉµÄÍ¼Æ¬Î»ÖÃ
+     *            æ–°ç”Ÿæˆçš„å›¾ç‰‡ä½ç½®
      * @throws IOException
      */
     public static void cutImage(int x,int y,int width,int height,
@@ -223,7 +223,7 @@ public class ImgHelper{
         FileInputStream is = null;
         ImageInputStream iis = null;
 
-        // Õâ¸öÊÇ»ñÈ¡Í¼Æ¬À©Õ¹ÃûµÄ·½·¨£¬±ÈÈç£ºjpg¡£ÎÒÕâÀïÓĞÏÖ³ÉµÄ£¬Èç¹ûÃ»ÓĞ£¬×Ô¼ºÊµÏÖ
+        // è¿™ä¸ªæ˜¯è·å–å›¾ç‰‡æ‰©å±•åçš„æ–¹æ³•ï¼Œæ¯”å¦‚ï¼šjpgã€‚æˆ‘è¿™é‡Œæœ‰ç°æˆçš„ï¼Œå¦‚æœæ²¡æœ‰ï¼Œè‡ªå·±å®ç°
         String imgType = FileHelper.getFiletype(oldpath);
 
         is = new FileInputStream(oldpath);

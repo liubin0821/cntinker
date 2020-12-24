@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -31,6 +32,43 @@ import sun.misc.BASE64Decoder;
  * @author bin_liu
  */
 public class StringHelper {
+
+	private static String phoneMatcher;
+
+	static {
+		StringBuffer query = new StringBuffer();
+		query.append("147\\d{9}");
+		query.append("|1[3,8]\\d{9}");
+		query.append("|15\\[0,1,2,3,5,6,7,8,9]");
+		query.append("|17[3,6,7,8]\\d{8}");
+		query.append("|170[0,1,2,5,7,8,9]\\d{7}");
+
+		phoneMatcher = query.toString();
+	}
+
+	/**
+	 * 按指定长度切割字符串，方法调用传入co为null即可
+	 * 
+	 * @param str
+	 * @param pos
+	 * @param co
+	 * @return List<String>
+	 */
+	public static List<String> split(String str, int pos, List<String> co) {
+		if (str.length() <= 0) {
+			return co;
+		}
+		if (str.length() <= pos) {
+			co.add(str);
+			return co;
+		}
+		if (co == null || co.size() <= 0) {
+			co = new ArrayList<String>();
+		}
+		String temp = str.substring(0, pos);
+		co.add(temp);
+		return split(str.substring(pos), pos, co);
+	}
 
 	public static StringHelper getInstancle() {
 		return new StringHelper();
@@ -552,6 +590,10 @@ public class StringHelper {
 				&& line.length() <= length;
 	}
 
+	public static boolean isEmail(String line) {
+		return line.matches("\\w+[\\w.]*@[\\w.]+\\.\\w+$");
+	}
+
 	/**
 	 * 判断输入是否全是中文
 	 * 
@@ -616,16 +658,6 @@ public class StringHelper {
 	}
 
 	/**
-	 * 检查身份证是否合为15位或18位
-	 * 
-	 * @param value
-	 * @return boolean
-	 */
-	public static boolean isIDCard(String value) {
-		return value.matches("\\d{15}|\\d{18}");
-	}
-
-	/**
 	 * 检查输入的字符串是否为手机号
 	 * 
 	 * @param line
@@ -635,7 +667,7 @@ public class StringHelper {
 
 		Pattern p = null; // 正则表达??
 		Matcher m = null; // 操作的字符串
-		p = Pattern.compile("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");// 匹配移动手机号码
+		p = Pattern.compile(phoneMatcher);// 匹配移动手机号码
 		m = p.matcher(line);
 		if (m.matches())
 			return true;
@@ -665,7 +697,7 @@ public class StringHelper {
 	public static boolean hasPhone(String line) {
 		Pattern p = null; // 正则表达??
 		Matcher m = null; // 操作的字符串
-		p = Pattern.compile("^((13[0-9])|(15[^4,\\D])|(18[0,5-9]))\\d{8}$");// 匹配移动手机号码
+		p = Pattern.compile(phoneMatcher);// 匹配移动手机号码
 		m = p.matcher(line);
 		if (m.find())
 			return true;
@@ -681,7 +713,7 @@ public class StringHelper {
 	public static String getPhone(String line) {
 		Pattern p = null; // 正则表达??
 		Matcher m = null; // 操作的字符串
-		p = Pattern.compile("1[3,5][4,5,6,7,8,9]\\d{8}|15[8,9]\\d{8}");// 匹配移动手机号码
+		p = Pattern.compile(phoneMatcher);// 匹配移动手机号码
 
 		for (int i = 0; i < line.length(); i++) {
 
@@ -1442,6 +1474,7 @@ public class StringHelper {
 		String unicode = toUnicode(content);
 		unicode = unicode.replaceAll("\\\\u0020", "");
 		unicode = unicode.replaceAll("\\\\u3000", "");
+		unicode = unicode.replaceAll("\\\\u00a0", "");
 		return fromUnicode(unicode);
 	}
 
@@ -1546,7 +1579,7 @@ public class StringHelper {
 	public static String formartDecimalToStr(Double d) {
 		return formartDecimalToStr(d, "0.00");
 	}
-	
+
 	public static String formartDecimalToStr(Float d) {
 		return formartDecimalToStr(d.doubleValue(), "0.00");
 	}
@@ -1602,6 +1635,105 @@ public class StringHelper {
 		return result;
 	}
 
+	private static String truncateUrlPage(String strURL) {
+		String strAllParam = null;
+		String[] arrSplit = null;
+
+		strURL = strURL.trim().toLowerCase();
+
+		arrSplit = strURL.split("[?]");
+		if (strURL.length() > 1) {
+			if (arrSplit.length > 1) {
+				if (arrSplit[1] != null) {
+					strAllParam = arrSplit[1];
+				}
+			}
+		}
+
+		return strAllParam;
+	}
+
+	/**
+	 * 获取一个URL后的所有参数及值，k,v格式
+	 * 
+	 * @param URL
+	 * @return Map<String,String>
+	 */
+	public static Map<String, String> getRequestParameters(String url) {
+		Map<String, String> mapRequest = new HashMap<String, String>();
+
+		String[] arrSplit = null;
+
+		String strUrlParam = truncateUrlPage(url);
+		if (strUrlParam == null) {
+			return mapRequest;
+		}
+		arrSplit = strUrlParam.split("[&]");
+		for (String strSplit : arrSplit) {
+			String[] arrSplitEqual = null;
+			arrSplitEqual = strSplit.split("[=]");
+			if (arrSplitEqual.length > 1) {
+				mapRequest.put(arrSplitEqual[0], arrSplitEqual[1]);
+			} else {
+				if (arrSplitEqual[0] != "") {
+					// 只有参数没有值，不加入
+					mapRequest.put(arrSplitEqual[0], "");
+				}
+			}
+		}
+		return mapRequest;
+	}
+
+	/**
+	 * 获取一个URL后的指定参数的值
+	 * 
+	 * @param url
+	 * @param key
+	 * @return String
+	 */
+	public static String getRequestValue(String url, String key) {
+		Map<String, String> m = getRequestParameters(url);
+		if (m == null || !m.containsKey(key))
+			return "";
+		return m.get(key).toString();
+	}
+
+	/**
+	 * 判定是否为有效的身份证
+	 * 
+	 * @param idcard
+	 * @return boolean
+	 */
+	public static boolean isIdcard(String idcard) {
+		Pattern p = null; // 正则表达??
+		Matcher m = null; // 操作的字符串
+		p = Pattern.compile("(\\d{14}[0-9a-zA-Z])|(\\d{17}[0-9a-zA-Z])");// 匹配移动手机号码
+		m = p.matcher(idcard);
+		if (m.matches())
+			return true;
+		return false;
+	}
+
+	/**
+	 * 时间段合法性检测,规则：新的时间段不能和原来的时间段有交集
+	 * 
+	 * @param oldStartTime
+	 * @param oldEndTime
+	 * @param newStartTime
+	 * @param newEndTime
+	 * @return boolean
+	 */
+	public static boolean checkTimeArea(Long oldStartTime, Long oldEndTime,
+			Long newStartTime, Long newEndTime) {
+		if (newStartTime >= oldStartTime && newStartTime <= oldEndTime) {
+			return false;
+		}
+		if (newEndTime >= oldStartTime && newEndTime <= oldEndTime) {
+			return false;
+		}
+		return true;
+	}
+
 	public static void main(String[] args) throws Exception {
 
 		Calendar curCal = Calendar.getInstance();
@@ -1630,5 +1762,8 @@ public class StringHelper {
 		Date td1 = dateff.parse(time);
 		Date td2 = new Date(System.currentTimeMillis());
 		System.out.println(getDiffMinute(td1, td2));
+
+		String mail = "fjw1ie_fjiwe@1126.com";
+		System.out.println(isEmail(mail));
 	}
 }
