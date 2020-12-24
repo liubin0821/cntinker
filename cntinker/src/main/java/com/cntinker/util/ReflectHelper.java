@@ -3,8 +3,12 @@
  */
 package com.cntinker.util;
 
+import cn.hutool.core.util.ReflectUtil;
 import com.google.common.collect.Maps;
+import net.sf.cglib.beans.BeanMap;
+import org.apache.commons.lang.StringUtils;
 
+import javax.persistence.Column;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -17,23 +21,40 @@ import java.util.Map;
  */
 public class ReflectHelper {
 
-	/**
-	 * 通过传入表名，在springBean里通过Dao的interface第一个参数获取model类
-	 *
-	 * @param tableName
-	 * @return
-	 */
-	public static Class getModelClassByTableName(String tableName) {
-		String modelDao = StringLowUtils.toLowerCaseFirstOne(StringLowUtils.lineToHump(tableName)) + "Dao";
-		Object obj = SpringContextHolder.getApplicationContext().getBean(modelDao);
-		if (obj == null) {
+	public static String makeToString(Object obj)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		StringBuffer sb = new StringBuffer();
+		sb.append(obj.getClass().getName()).append("[");
+
+		String[] var = getAllvarName(obj.getClass());
+		for (String e : var) {
+			sb.append("|").append(e).append(":")
+					.append(getValue(obj, e) == null ? "" : getValue(obj, e));
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+
+	public static String[] getAllvarName(Class clazz) {
+		List<String> res = new ArrayList<String>();
+		Field[] f = clazz.getDeclaredFields();
+		for (Field e : f) {
+			res.add(e.getName());
+		}
+		return (String[]) res.toArray(new String[0]);
+	}
+
+	public static Object getValue(Object obj, String paramer)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		String methodName = "get" + paramer;
+
+		Method m = getMethod(obj.getClass(), methodName);
+		if (m == null) {
 			return null;
 		}
-		Class[] interfaces = obj.getClass().getInterfaces();
-		if (interfaces == null || interfaces.length <= 0) {
-			return null;
-		}
-		return ReflectHelper.getActualTypeArgumentClass(interfaces[0], 0);
+		return m.invoke(obj, null);
 	}
 
 	/**
@@ -169,7 +190,7 @@ public class ReflectHelper {
 	}
 
 	private static <T> T getValueByAnnotationByClass(Annotation t, String memberName) {
-		if (t == null || com.zhjy.zbuilder.core.util.StringUtils.isEmpty(memberName)) {
+		if (t == null || StringUtils.isEmpty(memberName)) {
 			return null;
 		}
 		InvocationHandler invocationHandler = Proxy.getInvocationHandler(t);
