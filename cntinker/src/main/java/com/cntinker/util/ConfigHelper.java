@@ -4,11 +4,7 @@
 package com.cntinker.util;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Properties;
 
 /**
  * @author bin_liu
@@ -83,7 +79,7 @@ public class ConfigHelper{
     }
 
     public static void main(String[] args) throws Exception{
-        ConfigHelper c = new ConfigHelper(StringHelper.getInstancle());
+        ConfigHelper c = new ConfigHelper(new CookieHelper());
         System.out.println(c.getCfgPath());
         // 默认配置文件目录
         System.out.println(c.getValueByName("server.properties",

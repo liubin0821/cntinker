@@ -3,108 +3,99 @@
  */
 package com.cntinker.util;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Member;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import cn.hutool.core.util.ReflectUtil;
+import com.google.common.collect.Maps;
+import net.sf.cglib.beans.BeanMap;
+import org.apache.commons.lang.StringUtils;
+
+import javax.persistence.Column;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: bin_liu
  */
 public class ReflectHelper {
 
-	/**
-	 * 为一个指定属性赋值
-	 * 
-	 * @param obj
-	 * @param paramer
-	 * @param value
-	 * @return Object
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
-	 */
-	public static Object setValue(Object obj, String paramer, Object value)
+	public static String makeToString(Object obj)
 			throws IllegalAccessException, IllegalArgumentException,
 			InvocationTargetException {
-		if (value == null)
-			return obj;
-		String methodName = "set" + paramer.substring(0, 1).toUpperCase()
-				+ paramer.substring(1);
+		StringBuffer sb = new StringBuffer();
+		sb.append(obj.getClass().getName()).append("[");
+
+		String[] var = getAllvarName(obj.getClass());
+		for (String e : var) {
+			sb.append("|").append(e).append(":")
+					.append(getValue(obj, e) == null ? "" : getValue(obj, e));
+		}
+		sb.append("]");
+		return sb.toString();
+	}
+
+	public static String[] getAllvarName(Class clazz) {
+		List<String> res = new ArrayList<String>();
+		Field[] f = clazz.getDeclaredFields();
+		for (Field e : f) {
+			res.add(e.getName());
+		}
+		return (String[]) res.toArray(new String[0]);
+	}
+
+	public static Object getValue(Object obj, String paramer)
+			throws IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException {
+		String methodName = "get" + paramer;
 
 		Method m = getMethod(obj.getClass(), methodName);
-
 		if (m == null) {
-			// 大写首字找不到找全小写
-			methodName = "set" + paramer;
-			m = getMethod(obj.getClass(), methodName);
-			if (m == null)
-				return obj;
+			return null;
 		}
-
-		// 类型不一样则转换,暂只支持基本类型数据
-		value = convObj(value.getClass(), m.getParameterTypes()[0], value);
-		m.invoke(obj, value);
-
-		return obj;
+		return m.invoke(obj, null);
 	}
 
 	/**
-	 * 对象类型转换，暂支持基本类型数据
-	 * 
-	 * @param input
-	 * @param output
-	 * @return Object
+	 * 获取指定类的第一个参数里的类
+	 *
+	 * @param serviceImplClass
+	 * @return
 	 */
-	public static Object convObj(Class input, Class output, Object value) {
-		String inputValueType = input.getName();
-		String outputValueType = output.getName();
+	public static Class getActualTypeArgumentClass(Class serviceImplClass) {
+		return getActualTypeArgumentClass(serviceImplClass, 0, 0);
+	}
 
-		if (inputValueType.equals(outputValueType)) {
-			return value;
-		}
-		// 输出为String
-		if (outputValueType.equals(String.class.getName())) {
-			if (inputValueType.equals(Integer.class.getName())
-					|| inputValueType.equals(Double.class.getName())
-					|| inputValueType.equals(Float.class.getName())
-					|| inputValueType.equals(Long.class.getName())
-					|| inputValueType.equals(Boolean.class.getName())
-					|| inputValueType.equals(Character.class.getName())
-					|| inputValueType.equals(java.lang.Byte.class.getName())
-					|| inputValueType.equals(java.lang.Short.class.getName())
-					|| inputValueType.equals(java.lang.StringBuffer.class
-							.getName())) {
-				return value.toString();
+	public static Class getActualTypeArgumentClass(Class serviceImplClass, int indexParameter) {
+		Type type = serviceImplClass.getGenericInterfaces()[0];
+		ParameterizedType p = (ParameterizedType) type;
+		Class c = (Class) p.getActualTypeArguments()[indexParameter];
+		return c;
+	}
+
+	public static Class getActualTypeArgumentClass(Class serviceImplClass, int indexInteface, int indexParameter) {
+		Type type = serviceImplClass.getGenericInterfaces()[indexInteface];
+		ParameterizedType p = (ParameterizedType) type;
+		Class c = (Class) p.getActualTypeArguments()[indexParameter];
+		return c;
+	}
+
+
+	public static <T> Map<String, Object> beanToMap(T bean) {
+		Map<String, Object> map = Maps.newHashMap();
+		if (bean != null) {
+			BeanMap beanMap = BeanMap.create(bean);
+			for (Object key : beanMap.keySet()) {
+				map.put(key + "", beanMap.get(key));
 			}
-		} else if (outputValueType.equals(Integer.class.getName())) {
-			if (inputValueType.equals(String.class.getName())) {
-				return new Integer(value.toString());
-			} else if (inputValueType.equals(Double.class.getName())) {
-				return new Double(value.toString()).intValue();
-			} else if (inputValueType.equals(Float.class.getName())) {
-				return new Float(value.toString()).intValue();
-			} else if (inputValueType.equals(Long.class.getName())) {
-				return new Long(value.toString()).intValue();
-			} else if (inputValueType.equals(Byte.class.getName())) {
-				return new Byte(value.toString()).intValue();
-			} else if (inputValueType.equals(Short.class.getName())) {
-				return new Short(value.toString()).intValue();
-			}
-
 		}
-
-		return null;
-
+		return map;
 	}
 
 	/**
 	 * 获取所有get方法
-	 * 
+	 *
 	 * @param obj
 	 * @return List<Method>
 	 */
@@ -112,7 +103,7 @@ public class ReflectHelper {
 		Method[] methods = obj.getClass().getMethods();
 		List<Method> res = new ArrayList<Method>();
 		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].getName().startsWith("get")) {
+			if (methods[i].getName().startsWith("get") && !methods[i].getName().equals("getClass")) {
 				res.add(methods[i]);
 			}
 		}
@@ -121,7 +112,7 @@ public class ReflectHelper {
 
 	/**
 	 * 获取所有set方法
-	 * 
+	 *
 	 * @param obj
 	 * @return List<Method>
 	 */
@@ -136,142 +127,190 @@ public class ReflectHelper {
 		return res;
 	}
 
-	public static <T> T getV(Object obj, String... paramer)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException {
-		for (int i = 0; i < paramer.length; i++) {
-			if (i <= paramer.length) {
-				Object o = getValue(obj, paramer[i]);
-				if ((paramer.length <= i + 1) && isBase(o))
-					return (T) getValue(obj, paramer[i]);
-				else
-					return getV(o, paramer[i + 1]);
-			}
-		}
-		return null;
-	}
-
-	private static boolean isBase(Object obj) {
-		if (obj instanceof java.lang.String) {
-			return true;
-		} else if (obj instanceof java.lang.Long) {
-			return true;
-		} else if (obj instanceof java.lang.Short) {
-			return true;
-		} else if (obj instanceof java.lang.Integer) {
-			return true;
-		} else if (obj instanceof java.lang.Byte) {
-			return true;
-		} else if (obj instanceof java.lang.Boolean) {
-			return true;
-		} else if (obj instanceof java.lang.Double) {
-			return true;
-		} else if (obj instanceof java.lang.Float) {
-			return true;
-		} else if (obj instanceof java.util.Date) {
-			return true;
-		} else if (obj instanceof java.sql.Timestamp) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public static Object getValue(Object obj, String paramer)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException {
-		String methodName = "get" + paramer;
-
-		Method m = getMethod(obj.getClass(), methodName);
-		if (m == null)
-			return null;
-		return m.invoke(obj, null);
-	}
-
 	/**
 	 * 得到一个类的指定名称函数
-	 * 
+	 *
 	 * @param theClass
 	 * @param name
 	 * @return Method
 	 */
 	public static Method getMethod(Class theClass, String name) {
-		Method[] methods = theClass.getMethods();
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].getName().equalsIgnoreCase(name)) {
-				return methods[i];
+		return cn.hutool.core.util.ReflectUtil.getMethodOfObj(theClass, name);
+	}
+
+	/**
+	 * 获取一个变量的注解成员的值
+	 *
+	 * @param clazz
+	 * @param annotationClazz
+	 * @param var
+	 * @param memberName
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> T getValueByAnnotationByVar(Class clazz, Class annotationClazz, Field var, String memberName) {
+		Annotation t = var.getAnnotation(annotationClazz);
+		if (t == null) {
+			return null;
+		}
+		return getValueByAnnotationByClass(t, memberName);
+	}
+
+	/**
+	 * 获取一个变量的注解成员的值
+	 *
+	 * @param clazz
+	 * @param annotationClazz
+	 * @param var
+	 * @param memberName
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> T getValueByAnnotationByVar(Class clazz, Class annotationClazz, String var, String memberName) {
+		Field varField = ReflectUtil.getField(clazz, var);
+		if (varField == null) {
+			return null;
+		}
+		Annotation t = varField.getAnnotation(annotationClazz);
+		return getValueByAnnotationByClass(t, memberName);
+	}
+
+	/**
+	 * 获取一个类的注解成员的值
+	 *
+	 * @param clazz
+	 * @param annotationClazz
+	 * @param memberName
+	 * @param <T>
+	 * @return
+	 */
+	public static <T> T getValueByAnnotationByClass(Class clazz, Class annotationClazz, String memberName) {
+		Annotation t = clazz.getAnnotation(annotationClazz);
+		return getValueByAnnotationByClass(t, memberName);
+	}
+
+	private static <T> T getValueByAnnotationByClass(Annotation t, String memberName) {
+		if (t == null || StringUtils.isEmpty(memberName)) {
+			return null;
+		}
+		InvocationHandler invocationHandler = Proxy.getInvocationHandler(t);
+		Field value = null;
+		try {
+			value = invocationHandler.getClass().getDeclaredField("memberValues");
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+			return null;
+		}
+		if (value == null) {
+			return null;
+		}
+		value.setAccessible(true);
+		Map<String, Object> memberValues = null;
+		try {
+			Object temp = value.get(invocationHandler);
+			if (temp == null) {
+				return null;
+			}
+			memberValues = (Map<String, Object>) temp;
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+			return null;
+		}
+		Object obj = memberValues.get(memberName);
+		return obj == null ? null : (T) obj;
+	}
+
+	/**
+	 * 返回k=bean变量名,v=别名<br>
+	 * 得到注解，如果没有就返回变量名<br>
+	 * 顺序:变量注解>方法注解>变量名<br>
+	 *
+	 * @param clazz
+	 * @return
+	 */
+	public static Map<String, String> getAnnotationVars(Class clazz, boolean hasAnnotation) {
+		String[] vars = getAllvarName(clazz, false, false, hasAnnotation);
+		Map<String, String> res = new HashMap<>();
+		for (String e : vars) {
+			String anno = getAnnotationOrVar(clazz, e);
+			if (StringUtils.isEmpty(anno)) {
+				continue;
+			}
+			res.put(e, anno);
+		}
+		return res;
+	}
+
+	/**
+	 * 得到注解，如果没有就返回变量名,为动态sql用<br>
+	 * 顺序:变量注解>方法注解>变量名<br>
+	 *
+	 * @param clazz
+	 * @return String[]
+	 */
+	private static String getAnnotationOrVar(Class clazz, String varName) {
+		List<String> res = new ArrayList<String>();
+		Field[] f = clazz.getDeclaredFields();
+		for (Field e : f) {
+			String var = e.getName();
+			if (!var.equals(varName)) {
+				continue;
+			}
+			// 变量注解
+			Column c = e.getAnnotation(Column.class);
+			if (c != null && !StringHelper.isNull(c.name())) {
+				return c.name();
+			}
+			// 对应的get方法
+			String getMenthodName = "get" + var.substring(0, 1).toUpperCase()
+					+ var.substring(1);
+			Method m = getMethod(clazz, getMenthodName);
+			if (m != null) {
+				// 对应注解
+				Column c2 = m.getAnnotation(Column.class);
+				if (c2 != null && !StringHelper.isNull(c2.name())) {
+					return c2.name();
+				}
+			}
+			return var;
+		}
+		return varName;
+	}
+
+	public static Class getVarObject(Class clazz, String varName) {
+		Field[] lst = clazz.getDeclaredFields();
+		for (Field e : lst) {
+			if (e.getName().equals(varName)) {
+				return e.getType();
 			}
 		}
 		return null;
 	}
 
-	/**
-	 * 指定类的成员函数是否是public
-	 * 
-	 * @param clazz
-	 * @param member
-	 * @return boolean
-	 */
-	public static boolean isPublic(Class clazz, Member member) {
-		return Modifier.isPublic(member.getModifiers())
-				&& Modifier.isPublic(clazz.getModifiers());
-	}
-
-	/**
-	 * 是否使抽象类
-	 * 
-	 * @param clazz
-	 * @return boolean
-	 */
-	public static boolean isAbstractClass(Class clazz) {
-		int modifier = clazz.getModifiers();
-		return Modifier.isAbstract(modifier) || Modifier.isInterface(modifier);
-	}
-
-	/**
-	 * 得到默认的构造函数
-	 * 
-	 * @param clazz
-	 * @return Constructor
-	 * @throws NoSuchMethodException
-	 */
-	public static Constructor getDefaultConstructor(Class clazz)
-			throws NoSuchMethodException {
-
-		if (isAbstractClass(clazz))
-			return null;
-
-		Constructor constructor = clazz.getDeclaredConstructor();
-		if (!isPublic(clazz, constructor)) {
-			constructor.setAccessible(true);
-		}
-		return constructor;
-	}
-
-	public static String[] getAllvarName(Class clazz) {
+	public static String[] getAllvarName(Class clazz, boolean hasStatic, boolean hasPublic, boolean hasAnnotation) {
 		List<String> res = new ArrayList<String>();
 		Field[] f = clazz.getDeclaredFields();
 		for (Field e : f) {
+			if (!hasStatic) {
+				if (Modifier.isStatic(e.getModifiers())) {
+					continue;
+				}
+			}
+			if (!hasPublic) {
+				if (Modifier.isPublic(e.getModifiers())) {
+					continue;
+				}
+			}
+			if (hasAnnotation) {
+				Column c = e.getAnnotation(Column.class);
+				if (c == null) {
+					continue;
+				}
+			}
 			res.add(e.getName());
 		}
 
 		return (String[]) res.toArray(new String[0]);
-	}
-
-	public static String makeToString(Object obj)
-			throws IllegalAccessException, IllegalArgumentException,
-			InvocationTargetException {
-		StringBuffer sb = new StringBuffer();
-		sb.append(obj.getClass().getName()).append("[");
-
-		String[] var = getAllvarName(obj.getClass());
-		for (String e : var) {
-			sb.append("|").append(e).append(":")
-					.append(getValue(obj, e) == null ? "" : getValue(obj, e));
-		}
-
-		sb.append("]");
-		return sb.toString();
 	}
 
 }
